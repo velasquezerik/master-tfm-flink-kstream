@@ -1,0 +1,39 @@
+<!--
+    Logback configuration file for "local" spring profile used for development team local environment.
+    This configuration is based on "CONSOLE" appender.
+-->
+<configuration>
+
+    <springProperty scope="context" name="springAppName" source="spring.application.name"/>
+    <property name="LOG_FILE" value="${springAppName}"/>
+
+    <include resource="file-appender.xml" />
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>
+                %d{dd-MM-yyyy HH:mm:ss} %highlight(%-5level) %-50logger{50} [%boldCyan(${springAppName:-})]: %msg%n
+            </Pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="com.verisure" level="INFO" additivity="false">
+        <appender-ref ref="FILE" />
+        <appender-ref ref="CONSOLE" />    
+    </logger>
+
+    <logger name="com.netflix" level="INFO" additivity="false">
+        <appender-ref ref="FILE" />
+        <appender-ref ref="CONSOLE" />
+    </logger>
+    <logger name="org.springframework" level="INFO" additivity="false">
+        <appender-ref ref="FILE" />
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
+    <root level="warn" >
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+
+</configuration>

@@ -1,0 +1,58 @@
+# TEMPLATE JULIEOPS
+# V0.1
+# changelog
+#
+# date
+###############################
+# Business domain name
+context: "arqsol"
+projects:
+# Application name
+- name: "pocinv"
+  #Users SCRAM to access topics. User per application.
+  consumers:
+  # Naming Conventions "User:[business domain-app-user]"
+  - principal: "User:arqsol-poc-user"
+  producers:
+  - principal: "User:arqsol-poc-user"
+    transactionId: "*"
+    idempotence: "true"
+  topics:
+    # Add information about the use of the topic:
+    # Required retention time of data: < time seconds >
+    # Estimated throughput by producer: < MB per second >
+    # Topic Naming Conventions https://confluence.apps.verisure.com/display/ARCH/Kafka+Topic+Naming+Conventions
+    - name: "arqsol.pocinv.kstream.panelevents.mc.streaming"
+    # Schema Topics - Add in jira request the file .avsc if is a new schema
+      schemas:
+        value.schema.file: "/home/confluent/JulieOpsArqSol/schemas/PanelEvent.avsc"
+        value.format: "AVRO"
+      config:
+        # The maximum time we will retain a log before we will discard old log segments to free up space if we are using the "delete" retention policy.
+        retention.ms: "3600000"
+        # A string that is either "delete" or "compact" or both.
+        cleanup.policy: "delete"
+        # This configuration controls the segment file size for the log.
+        # This parameter is calculated by:  Throughput (Bytes/s) X retention time (seconds) / 4: [500Kb/s X 3600s / 4 ]
+        segment.bytes: "450000000"
+        # Multiple copies of data over the multiple brokers. Min 2 replica factor. Max 4 replica factor.
+        replication.factor: "2"
+        # When a producer sets acks to "all" (or "-1"), this configuration specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful.
+        min.insync.replicas: "1"
+        #  Number of log partitions per topic # https://eventsizer.io/partitions
+        num.partitions: "4"
+    - name: "arqsol.pocinv.kstream.signalexcessevents.mc.streaming"
+      config:
+        # The maximum time we will retain a log before we will discard old log segments to free up space if we are using the "delete" retention policy.
+        retention.ms: "3600000"
+        # A string that is either "delete" or "compact" or both.
+        cleanup.policy: "delete"
+        # This configuration controls the segment file size for the log.
+        # This parameter is calculated by:  Throughput (Bytes/s) X retention time (seconds) / 4: [15Kb/s X 3600s / 4 ]
+        segment.bytes: "13500000"
+        # Multiple copies of data over the multiple brokers. Min 2 replica factor. Max 4 replica factor.
+        replication.factor: "2"
+        # When a producer sets acks to "all" (or "-1"), this configuration specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful.
+        min.insync.replicas: "1"
+        #  Number of log partitions per topic # https://eventsizer.io/partitions
+        num.partitions: "2"        

@@ -1,0 +1,7 @@
+com/verisure/inv/avro/PanelEventAvroDTO$Builder.class
+com/verisure/xad/inv/poc/generator/VerisureRandomEventKafkaGenerator.class
+com/verisure/inv/avro/SdKey.class
+com/verisure/inv/avro/PanelEvent.class
+com/verisure/inv/avro/PanelEventAvroDTO.class
+com/verisure/inv/avro/PanelEvent$Builder.class
+com/verisure/inv/avro/SdKey$Builder.class

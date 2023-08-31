@@ -1,0 +1,4 @@
+/Users/erik/work/Flink/flink-inventory-signals/data-generator/xad-inventory-poc-generator/target/generated-sources/com/verisure/inv/avro/PanelEventAvroDTO.java
+/Users/erik/work/Flink/flink-inventory-signals/data-generator/xad-inventory-poc-generator/target/generated-sources/com/verisure/inv/avro/PanelEvent.java
+/Users/erik/work/Flink/flink-inventory-signals/data-generator/xad-inventory-poc-generator/target/generated-sources/com/verisure/inv/avro/SdKey.java
+/Users/erik/work/Flink/flink-inventory-signals/data-generator/xad-inventory-poc-generator/src/main/java/com/verisure/xad/inv/poc/generator/VerisureRandomEventKafkaGenerator.java

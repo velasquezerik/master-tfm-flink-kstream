@@ -1,0 +1,29 @@
+{
+  "generator-verisure-scaffolding": {
+    "generateSamples": false,
+    "appType": "microservice",
+    "appName": "kafka-stream-signal-excess",
+    "platform": "xad.poc.inv",
+    "k8sDeploy": true,
+    "targetInfra": "onpremise",
+    "targetClusterGroup": "kim2m",
+    "clusterNames": [
+      "ed1kisd",
+      "ef1moonshot",
+      "epi1kim2m",
+      "epi2kim2m",
+      "es1kim2mrancher",
+      "es2kim2mrancher"
+    ],
+    "targetCDCluster": "ed1kisd",
+    "namespace": "inventory",
+    "serviceAccount": "inventory-sa",
+    "useIstio": false,
+    "databaseType": "none",
+    "features": [],
+    "jvmVersion": "java11",
+    "buildTool": "maven",
+    "packageName": "com.verisure.xad.poc.inv.kafkastreamsignalexcess",
+    "packageFolder": "com/verisure/xad/poc/inv/kafkastreamsignalexcess"
+  }
+}

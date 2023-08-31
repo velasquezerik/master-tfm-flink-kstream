@@ -1,0 +1,46 @@
+{
+    "type": "record",
+    "name": "MissingTestEventAvro",
+    "namespace": "com.verisure.inv.avro",
+    "fields": [{
+        "name": "flowName",
+        "type": ["null", "string"],
+        "default": null
+    }, {
+        "name": "parameters",
+        "type": ["null", {
+            "type": "record",
+            "name": "Parameters",
+            "fields": [{
+                "name": "channel",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "country",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "eventType",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "installationId",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "medium",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "timeInSeconds",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "version",
+                "type": ["null", "string"],
+                "default": null
+            }]
+        }],
+        "default": null
+    }]
+}

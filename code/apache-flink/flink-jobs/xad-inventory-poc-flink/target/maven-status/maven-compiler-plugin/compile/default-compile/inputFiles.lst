@@ -1,0 +1,10 @@
+/Users/erik/work/Flink/flink-inventory-signals/flink-jobs/xad-inventory-poc-flink/target/generated-sources/com/verisure/inv/avro/PanelEvent.java
+/Users/erik/work/Flink/flink-inventory-signals/flink-jobs/xad-inventory-poc-flink/src/main/java/com/verisure/xad/inv/poc/flink/sinks/SinkKafkaProducer.java
+/Users/erik/work/Flink/flink-inventory-signals/flink-jobs/xad-inventory-poc-flink/src/main/java/com/verisure/xad/inv/poc/flink/functions/MyKeyedProcessFunction.java
+/Users/erik/work/Flink/flink-inventory-signals/flink-jobs/xad-inventory-poc-flink/src/main/java/com/verisure/xad/inv/poc/flink/SignalExcessJob.java
+/Users/erik/work/Flink/flink-inventory-signals/flink-jobs/xad-inventory-poc-flink/src/main/java/com/verisure/xad/inv/poc/flink/sources/SourceKafkaConsumer.java
+/Users/erik/work/Flink/flink-inventory-signals/flink-jobs/xad-inventory-poc-flink/target/generated-sources/com/verisure/inv/avro/SdKey.java
+/Users/erik/work/Flink/flink-inventory-signals/flink-jobs/xad-inventory-poc-flink/src/main/java/com/verisure/xad/inv/poc/flink/functions/MyProcessWindowFunction.java
+/Users/erik/work/Flink/flink-inventory-signals/flink-jobs/xad-inventory-poc-flink/target/generated-sources/com/verisure/inv/avro/PanelEventAvroDTO.java
+/Users/erik/work/Flink/flink-inventory-signals/flink-jobs/xad-inventory-poc-flink/src/main/java/com/verisure/xad/inv/poc/flink/functions/MyCustomTriggerFunction.java
+/Users/erik/work/Flink/flink-inventory-signals/flink-jobs/xad-inventory-poc-flink/src/main/java/com/verisure/xad/inv/poc/flink/functions/MyProcessWindowFunction2.java

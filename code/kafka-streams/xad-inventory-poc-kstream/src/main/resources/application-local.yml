@@ -1,0 +1,42 @@
+# Local config for developer environment.
+spring:
+  config:
+    activate:
+      on-profile: "local"
+  main:
+    banner-mode: "off"
+  kafka:
+    bootstrapServers: "ef1brkm2m01v.vsdepi.local:9093, ef1brkm2m02v.vsdepi.local:9093, ef1brkm2m03v.vsdepi.local:9093"
+    consumer:
+       properties:
+          internal.leave.group.on.close: true
+          session.timeout.ms: 10000
+          heartbeat.interval.ms: 3000
+    streams:
+       stateDir: C:\\tmp\\kafka-streams
+       properties:
+          num.stream.threads: 4
+          num.standby.replicas: 0
+    properties:
+       schema:
+          registry:
+             url: https://ef1regm2m01v.vsdepi.local:8081
+       sasl:
+          mechanism: SCRAM-SHA-512
+          jaas:
+             config: org.apache.kafka.common.security.scram.ScramLoginModule required username="client" password="9779a14066";
+       security:
+          protocol: SASL_SSL
+
+# Enable health groups in local environment.
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+        
+elastic:
+  apm:
+    enabled: true
+    environment: local
+    log_level: INFO

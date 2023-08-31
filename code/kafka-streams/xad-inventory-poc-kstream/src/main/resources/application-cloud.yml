@@ -1,0 +1,63 @@
+spring:
+  main:
+    banner-mode: "off"
+  config:
+    activate:
+      on-profile: "cloud"
+  kafka:
+    bootstrapServers: "${kafka_boostrap_servers}"
+    consumer:
+       properties:
+          internal.leave.group.on.close: ${kafka_consumer_internal_leave_group_on_close}
+          session.timeout.ms: ${kafka_consumer_session_timeout_ms}
+          heartbeat.interval.ms: ${kafka_consumer_heartbeat_interval_ms}
+    streams:
+       stateDir: /kafka-streams
+       properties:
+          num.stream.threads: ${kafka_streams_num_threads}
+          num.standby.replicas: ${kafka_streams_standby_replicas}
+    properties:
+       schema:
+          registry:
+             url: ${kafka_schema_registry}
+       sasl:
+          mechanism: ${kafka_auth_mechanism}
+          jaas:
+             config: "${kafka_auth_jaas_config}"
+       security:
+          protocol: ${kafka_auth_protocol}      
+      
+app:          
+  missing-test-dsl: 
+    enabled: ${app_missing_test_dsl_enabled}
+    app-name: ${app_missing_test_dsl_name}
+  missing-test-papi: 
+    enabled: ${app_missing_test_windows_papi_enabled}
+    app-name: ${app_missing_test_windows_papi_name}
+  signal-excess-dsl: 
+    enabled: ${app_signal_excess_dsl_enabled}
+    app-name: ${app_signal_excess_dsl_name}
+  signal-excess-papi: 
+    enabled: ${app_signal_excess_papi_enabled}
+    app-name: ${app_signal_excess_papi_name}
+    input-topic: ${app_signal_excess_input_topic}
+    output-topic: ${app_signal_excess_output_topic}
+    signal-excess-state-store-name: ${app_signal_excess_state_store_name}
+    signal-excess-retention-period: ${app_signal_excess_signal_retention_period}
+    signal-excess-window-size: ${app_signal_excess_signal_window_size}
+    signal-excess-threshold: ${app_signal_excess_signal_threshold}
+    limit-executions-state-store-name: ${app_signal_excess_limit_executions_state_store_name}
+    limit-executions-retention-period: ${app_signal_excess_limit_executions_retention_period}
+    limit-executions-window-size: ${app_signal_excess_limit_executions_window_size}
+    limit-executions-threshold: ${app_signal_excess_limit_executions_threshold}
+    
+elastic:
+  apm:
+    enabled: ${elastic_apm_enabled}
+    environment: ${environment}
+    log_level: ${elastic_apm_log_level}
+    server_url: ${elastic_apm_url}
+    secret_token: ${elastic_apm_token}
+    metrics_interval: ${elastic_apm_metrics_interval}
+    transaction_sample_rate: ${elastic_apm_transaction_sample_rate}  
+    metric_set_limit: ${elastic_apm_metric_set_limit}    

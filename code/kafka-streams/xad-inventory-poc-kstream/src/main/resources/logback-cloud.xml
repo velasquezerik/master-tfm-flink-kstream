@@ -1,0 +1,62 @@
+<!--
+    Logback configuration file for "cloud" spring profile used for dockerized environments with a standard out based solution for logging.
+-->
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<!-- In dockerized environments we only use the console appender that it's integrated with the EFK platform -->
+    <!-- include resource="file-appender.xml" /-->
+
+    <springProperty scope="context" name="springAppName" source="spring.application.name"/>    
+	<appender name="CONSOLE"
+		class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+						"logTimestamp": "%date{dd-MM-yyyy HH:mm:ss.SSS}",
+						"severity": "%level",
+						"class": "%logger{50}",
+						"service": "${springAppName:-}",
+						"logMessage": "%message"
+						}
+                    </pattern>
+                </pattern>
+				<stackTrace>
+					<fieldName>stackTrace</fieldName>
+					<throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+						<maxDepthPerThrowable>50</maxDepthPerThrowable>
+						<maxLength>8192</maxLength>
+						<shortenedClassNameLength>35</shortenedClassNameLength>
+						<exclude>sun\.reflect\..*\.invoke.*</exclude>
+						<exclude>net\.sf\.cglib\.proxy\.MethodProxy\.invoke</exclude>
+						<rootCauseFirst>true</rootCauseFirst>
+						<inlineHash>true</inlineHash>
+					</throwableConverter>
+				</stackTrace>
+            </providers>
+        </encoder>
+	</appender>
+	
+	<logger name="com.verisure" additivity="false" level="INFO">
+		<!-- appender-ref ref="FILE" /-->
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<logger name="com.netflix" additivity="false" level="INFO">
+		<!-- appender-ref ref="FILE" /-->
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<logger name="org.springframework" additivity="false"
+		level="INFO">
+		<!-- appender-ref ref="FILE" /-->
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<root level="warn">
+		<!-- appender-ref ref="FILE" /-->
+		<appender-ref ref="CONSOLE" />
+	</root>
+
+</configuration>

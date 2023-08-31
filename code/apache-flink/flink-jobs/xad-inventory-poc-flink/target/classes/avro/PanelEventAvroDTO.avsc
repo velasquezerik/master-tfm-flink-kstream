@@ -1,0 +1,142 @@
+{
+    "type": "record",
+    "name": "PanelEventAvroDTO",
+    "namespace": "com.verisure.inv.avro",
+    "fields": [{
+        "name": "panelEvent",
+        "type": ["null", {
+            "type": "record",
+            "name": "PanelEvent",
+            "fields": [{
+                "name": "armedType",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "channelComm",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "devManufacturer",
+                "type": ["null", "int"],
+                "default": null
+            }, {
+                "name": "devType",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "deviceId",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "dhpEnable",
+                "type": ["null", "int"],
+                "default": null
+            }, {
+                "name": "evNumber",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "evSource",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "evTTCU",
+                "type": ["null", "boolean"],
+                "default": null
+            }, {
+                "name": "eventCode",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "inOrOut",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "protocolType",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "sdKey",
+                "type": ["null", {
+                    "type": "record",
+                    "name": "SdKey",
+                    "fields": [{
+                        "name": "idCountry",
+                        "type": ["null", "string"],
+                        "default": null
+                    }, {
+                        "name": "idInstallation",
+                        "type": ["null", "int"],
+                        "default": null
+                    }, {
+                        "name": "timestampEvent",
+                        "type": ["null", "long"],
+                        "default": null
+                    }, {
+                        "name": "timestampEventDevice",
+                        "type": ["null", "long"],
+                        "default": null
+                    }]
+                }],
+                "default": null
+            }, {
+                "name": "sei",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "serviceType",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "sidPhoto",
+                "type": ["null", "int"],
+                "default": null
+            }, {
+                "name": "signal",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "simCarrier",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "simNumber",
+                "type": ["null", "int"],
+                "default": null
+            }, {
+                "name": "sintetic",
+                "type": ["null", "boolean"],
+                "default": null
+            }, {
+                "name": "sourceType",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "targetType",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "timestampPhoto",
+                "type": ["null", "long"],
+                "default": null
+            }, {
+                "name": "totalPhotos",
+                "type": ["null", "int"],
+                "default": null
+            }, {
+                "name": "transmissionType",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "utcTime",
+                "type": ["null", "string"],
+                "default": null
+            }, {
+                "name": "zone",
+                "type": ["null", "string"],
+                "default": null
+            }]
+        }],
+        "default": null
+    }]
+}

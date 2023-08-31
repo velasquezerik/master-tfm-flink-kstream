@@ -1,0 +1,144 @@
+# For standard Spring Boot parameters see:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+server:
+  port: 8080
+  ssl:
+    enabled: false
+  servlet:
+    context-path: /xad-inventory-poc-kstream
+  # Enable graceful shutdown (from spring Boot 2.3.x)
+  # Default grace period is 30 seconds. This can be changed with spring.lifecycle.timeout-per-shutdown-phase.
+  shutdown: graceful
+  forward-headers-strategy: framework
+
+
+app:          
+  missing-test-dsl: 
+    enabled: false
+    app-name: "xad-pocinv-missingtest-dsl-group"  
+  missing-test-papi: 
+    enabled: false
+    app-name: "xad-pocinv-missingtest-papi-group"
+  signal-excess-dsl: 
+    enabled: false
+    app-name: "xad-pocinv-signalexcess-dsl-group"
+  signal-excess-papi:
+    enabled: true
+    app-name: "xad-pocinv-signalexcess-papi-group"
+    input-topic: "xad.pocinv.panelevents.mc.streaming"
+    output-topic: "xad.pocinv.paneleventsfiltered.mc.streaming"
+    signal-excess-state-store-name: "signal-excess-store"
+    signal-excess-retention-period: PT2H #2 hours in Duration format
+    signal-excess-window-size: PT60M # 60 minutes in Duration format
+    signal-excess-threshold: 20 # Greater Than or Equals
+    limit-executions-state-store-name: "limit-executions-store"
+    limit-executions-retention-period: P8D #8 days in Duration format
+    limit-executions-window-size: P7D #7 day in Duration format
+    limit-executions-threshold: 2 # Greater Than or Equals  
+    
+  # This configuration should be in spring.kafka.streams
+  changelog-config:
+    cleanup.policy: delete
+    segment.bytes: 536870912
+    min.cleanable.dirty.ratio: 0.1   
+        
+spring:
+  profiles:
+    active: "local"
+  application:
+    name: xad-inventory-poc-kstream-local
+  # Spring Cloud Sleuth tracing extra fields to propagate (HTTP/Rest and messaging).
+  # x-external-request-id is commonly used for request tracking purposes from third party systems where B3 traceId cannot be used. Remove or replace at your convenience!
+  sleuth:
+    enabled: false
+
+  # Whether a "NoHandlerFoundException" should be thrown if no Handler was found to process a request.
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+      accept-float-as-int: false
+
+logging:
+  file:
+    name: ${spring.application.name}
+  config: classpath:logback-${spring.profiles.active}.xml
+
+# Enable health groups in local environment.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus 
+  metrics:
+    enable:
+      all: true
+      executor: false
+      kafka.admin.client: false
+      kafka.consumer.io: false
+      kafka.consumer.node: false
+      kafka.consumer.authentication: false
+      kafka.consumer.connection: false
+      kafka.consumer.coordinator.sync: false
+      kafka.consumer.reauthentication: false
+      kafka.consumer.successful.authentication: false
+      kafka.consumer.successful.reauthentication: false       
+      kafka.consumer.failed.authentication: false
+      kafka.consumer.failed.reauthentication: false
+      kafka.producer.authentication: false
+      kafka.producer.connection: false
+      kafka.producer.buffer: false
+      kafka.producer.bufferpool: false
+      kafka.producer.reauthentication: false
+      kafka.producer.successful.authentication: false
+      kafka.producer.successful.reauthentication: false
+      kafka.producer.failed.authentication: false
+      kafka.producer.failed.reauthentication: false
+      kafka.producer.io: false
+      kafka.producer.node: false
+      kafka.producer.connections: false
+      kafka.producer.record.retry: false
+      kafka.producer.request: false
+      kafka.producer.txn: false
+      tomcat: false
+
+ 
+elastic:
+  apm:
+    enabled: true
+    metrics_enabled: true
+    enable_bytecode_visibility: false
+    service_name: ${spring.application.name} 
+    server_url: https://my-deployment-b56b3c.apm.francecentral.azure.elastic-cloud.com
+    #server_url: https://test-38c46f.apm.eu-west-3.aws.elastic-cloud.com
+    #server_url: http://ed101elkmon0v.epi.securitasdirect.local:8200
+    log_level: INFO
+    application_packages: com.verisure
+    # Add labels to subset your metrics. Add your instance (pod name, IP:port, etc.). You can add it dynamically in the ElasticAPMConfiguration class
+    global_labels: department=XAD,application=${spring.application.name} 
+    secret_token: z1c25PApfkJGUmzt4z
+    #api_key: YU01ZjBvWUJITW93LUFjSFF4MWY6MmpIVF8xbmVRb3lsSGFKN2VvdnZ6Zw==
+    #api_key: aFMyS3NvWUJ3cXdESlpnZ3hvUzA6T0c0X2VobW1TWWVUVFBuUV9QRi1nQQ==
+    enable_instrumentations: micrometer
+    #Enable experimental instrumentations to support Webflux (either Tomcat or Netty). You will need to enable this property to have metrics of Webclient integrations
+    enable_experimental_instrumentations: false
+    # Interval to send metrics:
+    metrics_interval: 1m
+    # Use transaction sampling to reduce overhead and storage requirements (ELK platform), you can set the sample rate to a value between 0.0 and 1.0
+    transaction_sample_rate: 0.0  
+    # Limits the number of active metric sets, default in Elastic is 1000 but we need more than 2000 for Kafka-streams applications
+    metric_set_limit: 5000
+
+info:
+  app:
+    name: "@project.name@"
+    version: "@project.version@"
+    encoding: "@project.build.sourceEncoding@"
+    java:
+      version: "@java.version@"

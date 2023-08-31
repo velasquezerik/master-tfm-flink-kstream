@@ -1,0 +1,203 @@
+version: '3.8'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.2.1
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-kafka:7.2.1
+    hostname: broker
+    container_name: broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8091
+
+  init-kafka:
+    image: confluentinc/cp-kafka:7.2.1
+    depends_on:
+      -         broker
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server broker:29092 --list
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic input --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic output --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic input-kafka --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic output-kafka --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic xad.pocinv.panelevents.flink.input --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic xad.pocinv.panelevents.flink.output --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server broker:29092 --list
+      "
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.2.1
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - broker
+    ports:
+      - "8091:8091"
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://schema-registry:8091"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8091
+      SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_METHODS: GET,POST,PUT,OPTIONS
+      SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_ORIGIN: '*'
+
+  rest-proxy:
+    image: confluentinc/cp-kafka-rest:7.2.1
+    depends_on:
+      - broker
+      - schema-registry
+    ports:
+      - 8082:8082
+    hostname: rest-proxy
+    container_name: rest-proxy
+    environment:
+      KAFKA_REST_HOST_NAME: rest-proxy
+      KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
+      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+      KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8091'
+      KAFKA_REST_ACCESS_CONTROL_ALLOW_ORIGIN: '*'
+      KAFKA_REST_ACCESS_CONTROL_ALLOW_METHODS: 'GET,POST,PUT,DELETE,OPTIONS,HEAD'
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:7.2.1
+    hostname: control-center
+    container_name: control-center
+    depends_on:
+      - zookeeper
+      - broker
+      - schema-registry
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:29092'
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8091"
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      PORT: 9021
+      
+  #Job Manager
+  jobmanager:
+    #image: apache/flink:1.16.0-scala_2.12-java11
+    image: public.ecr.aws/p5l2y2v3/xad-images:latest
+    command: "jobmanager.sh start-foreground"
+    ports:
+      - 8081:8081
+    volumes:
+      - ./conf:/opt/flink/conf
+      - /tmp/flink-checkpoints-directory:/tmp/flink-checkpoints-directory
+      - /tmp/flink-savepoints-directory:/tmp/flink-savepoints-directory
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+  
+  # Task Manager
+  taskmanager:
+    #image: apache/flink:1.16.0-scala_2.12-java11
+    image: public.ecr.aws/p5l2y2v3/xad-images:latest
+    depends_on:
+      - jobmanager
+    command: "taskmanager.sh start-foreground"
+    volumes:
+      - ./conf:/opt/flink/conf
+      - /tmp/flink-checkpoints-directory:/tmp/flink-checkpoints-directory
+      - /tmp/flink-savepoints-directory:/tmp/flink-savepoints-directory
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+
+  # generate:
+  #   build: test
+  #   image: flink/data-generator:1.0.0
+  #   command: "java -classpath /opt/data-generator.jar flink.EventGenerator --output-topic input"
+  #   restart: on-failure
+  #   depends_on:
+  #     schema-registry:
+  #       condition: service_healthy
+  #     jobmanager:
+  #       condition: service_started
+  #     broker:
+  #       condition: service_started
+  #     control-center:
+  #       condition: service_started
+
+  # generate-kafka:
+  #   build: kafka
+  #   image: flink/kafka-data-generator:1.0.0
+  #   command: "java -classpath /opt/data-generator.jar jar.EventKafkaGenerator --output-topic xad.pocinv.panelevents.flink.input --bootstrap.servers ef1brkm2m01v.vsdepi.local:9093,ef1brkm2m02v.vsdepi.local:9093,ef1brkm2m03v.vsdepi.local:9093 --schema-registry-url https://ef1regm2m01v.vsdepi.local:8081 --truststore-path /kafka_broker.truststore.jks --ssl-validation --jaas.config.username client --jaas.config.password 9779a14066"
+  #   #command: "java -classpath /opt/data-generator.jar jar.EventKafkaGenerator --output-topic input-kafka"
+  #   restart: on-failure
+  #   depends_on:
+  #     schema-registry:
+  #       condition: service_healthy
+  #     jobmanager:
+  #       condition: service_started
+  #     broker:
+  #       condition: service_started
+  #     control-center:
+  #       condition: service_started
+
+  poc-kafka-random-generator:
+    build: xad-inventory-poc-generator
+    image: verisure/xad-inventory-poc-generator:1.0.0
+    #command: "java -classpath /opt/data-generator.jar com.verisure.xad.inv.poc.generator.VerisureRandomEventKafkaGenerator"
+    command: "java -classpath /opt/data-generator.jar com.verisure.xad.inv.poc.generator.VerisureRandomEventKafkaGenerator --output-topic xad.pocinv.panelevents.flink.input --bootstrap.servers ef1brkm2m01v.vsdepi.local:9093,ef1brkm2m02v.vsdepi.local:9093,ef1brkm2m03v.vsdepi.local:9093 --schema-registry-url https://ef1regm2m01v.vsdepi.local:8081 --ssl-validation --jaas.config.username client --jaas.config.password 9779a14066 --events-per-window 2000"
+    restart: on-failure
+    depends_on:
+      schema-registry:
+        condition: service_healthy
+      jobmanager:
+        condition: service_started
+      broker:
+        condition: service_started
+      control-center:
+        condition: service_started
+
+  poc-kafka-random-duplicated-generator:
+    build: xad-inventory-poc-generator
+    image: verisure/xad-inventory-poc-generator:1.0.0
+    #command: "java -classpath /opt/data-generator.jar com.verisure.xad.inv.poc.generator.VerisureRandomEventKafkaGenerator --id-instalation-min 100 --id-instalation-max 101 --events-per-window 10"
+    command: "java -classpath /opt/data-generator.jar com.verisure.xad.inv.poc.generator.VerisureRandomEventKafkaGenerator --id-instalation-min 100 --id-instalation-max 200 --output-topic xad.pocinv.panelevents.flink.input --bootstrap.servers ef1brkm2m01v.vsdepi.local:9093,ef1brkm2m02v.vsdepi.local:9093,ef1brkm2m03v.vsdepi.local:9093 --schema-registry-url https://ef1regm2m01v.vsdepi.local:8081 --ssl-validation --jaas.config.username client --jaas.config.password 9779a14066 --events-per-window 100"
+    restart: on-failure
+    depends_on:
+      schema-registry:
+        condition: service_healthy
+      jobmanager:
+        condition: service_started
+      broker:
+        condition: service_started
+      control-center:
+        condition: service_started
