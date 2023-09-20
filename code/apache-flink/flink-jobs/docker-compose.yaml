@@ -137,10 +137,11 @@ services:
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 2 
   
-  generate:
-    build: ../data-generator/test
-    image: flink/data-generator:1.0.0
-    command: "java -classpath /opt/data-generator.jar flink.EventGenerator --output-topic input --events-per-window 10"
+  poc-kafka-random-generator:
+    build: ../data-generator
+    image: verisure/xad-inventory-poc-generator:1.0.0
+    command: "java -classpath /opt/xad-inventory-poc-generator/target/xad-inventory-poc-generator-1.0.jar com.verisure.xad.inv.poc.generator.VerisureRandomEventKafkaGenerator"
+    #command: "java -classpath /opt/data-generator.jar com.verisure.xad.inv.poc.generator.VerisureRandomEventKafkaGenerator --output-topic xad.pocinv.panelevents.flink.input --bootstrap.servers ef1brkm2m01v.vsdepi.local:9093,ef1brkm2m02v.vsdepi.local:9093,ef1brkm2m03v.vsdepi.local:9093 --schema-registry-url https://ef1regm2m01v.vsdepi.local:8081 --ssl-validation --jaas.config.username client --jaas.config.password 9779a14066 --events-per-window 2000"
     restart: on-failure
     depends_on:
       schema-registry:
@@ -152,11 +153,11 @@ services:
       control-center:
         condition: service_started
 
-  generate-kafka:
-    build: ../data-generator/kafka
-    image: flink/kafka-data-generator:1.0.0
-    command: "java -classpath /opt/data-generator.jar jar.EventKafkaGenerator --output-topic xad.pocinv.panelevents.flink.input --bootstrap.servers ef1brkm2m01v.vsdepi.local:9093,ef1brkm2m02v.vsdepi.local:9093,ef1brkm2m03v.vsdepi.local:9093 --schema-registry-url https://ef1regm2m01v.vsdepi.local:8081 --truststore-path /kafka_broker.truststore.jks --ssl-validation --jaas.config.username client --jaas.config.password 9779a14066 --events-per-window 900"
-    #command: "java -classpath /opt/data-generator.jar jar.EventKafkaGenerator --output-topic input-kafka"
+  poc-kafka-random-duplicated-generator:
+    build: ../data-generator
+    image: verisure/xad-inventory-poc-generator:1.0.0
+    command: "java -classpath /opt/xad-inventory-poc-generator/target/xad-inventory-poc-generator-1.0.jar com.verisure.xad.inv.poc.generator.VerisureRandomEventKafkaGenerator --id-instalation-min 100 --id-instalation-max 101 --events-per-window 10"
+    #command: "java -classpath /opt/data-generator.jar com.verisure.xad.inv.poc.generator.VerisureRandomEventKafkaGenerator --id-instalation-min 100 --id-instalation-max 200 --output-topic xad.pocinv.panelevents.flink.input --bootstrap.servers ef1brkm2m01v.vsdepi.local:9093,ef1brkm2m02v.vsdepi.local:9093,ef1brkm2m03v.vsdepi.local:9093 --schema-registry-url https://ef1regm2m01v.vsdepi.local:8081 --ssl-validation --jaas.config.username client --jaas.config.password 9779a14066 --events-per-window 100"
     restart: on-failure
     depends_on:
       schema-registry:
